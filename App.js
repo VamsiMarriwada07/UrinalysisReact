@@ -1,20 +1,58 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './screens/HomeScreen.js';
+import OnboardingScreen from './screens/OnboardingScreen.js';
+import ResultComponent from './screens/results.js';
+import { getItem } from './utils/asyncStorage.js';
+import UserHistory from './screens/UserHistory';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigation() {
+
+  const [showOnboarding, setShowOnboarding] = useState(null);
+  useEffect(()=>{
+    checkIfAlreadyOnboarded();
+  },[])
+
+  const checkIfAlreadyOnboarded = async ()=>{
+    let onboarded = await getItem('onboarded');
+    if(onboarded==1){
+      // hide onboarding
+      setShowOnboarding(false);
+    }else{
+      // show onboarding
+      setShowOnboarding(true);
+    }
+  }
+
+  if(showOnboarding==null){
+    return null;
+  }
+
+
+  if(showOnboarding){
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Onboarding'>
+          <Stack.Screen name="Onboarding" options={{headerShown: false}} component={OnboardingScreen} />
+          <Stack.Screen name="Home" options={{headerShown: false}} component={HomeScreen} />
+          <Stack.Screen name="ResultComponent" options={{headerShown: false}} component={ResultComponent} />
+          <Stack.Screen name="UserHistory" options={{headerShown: false}} component={UserHistory} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    )
+  }else{
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen name="Onboarding" options={{headerShown: false}} component={OnboardingScreen} />
+          <Stack.Screen name="Home" options={{headerShown: false}} component={HomeScreen} />
+          <Stack.Screen name="ResultComponent" options={{headerShown: false}} component={ResultComponent} />
+          <Stack.Screen name="UserHistory" options={{headerShown: false}} component={UserHistory} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    )
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
